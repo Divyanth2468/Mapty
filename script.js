@@ -3,7 +3,6 @@
 class Workout {
   date = new Date();
   id = (Date.now() + '').slice(-10);
-  clicks = 0;
 
   constructor(coords, distance, duration) {
     this.coords = coords; // [lat, lng]
@@ -20,10 +19,6 @@ class Workout {
       months[this.date.getMonth()]
     } ${this.date.getDate()}`;
     return this.description;
-  }
-
-  click() {
-    return this.clicks++;
   }
 }
 
@@ -59,11 +54,6 @@ class Cycling extends Workout {
   }
 }
 
-// const run1 = new Running([39, -12], 5.2, 24, 178);
-// const Cycling1 = new Cycling([39, -12], 27, 95, 520);
-// console.log(run1);
-// console.log(Cycling1);
-
 ////////////////////////////////
 // Application Archiitecture
 
@@ -82,7 +72,13 @@ class App {
   #workouts = [];
 
   constructor() {
+    // Get User's position
     this._getPosition();
+
+    // Get data from local storage
+    this._getLocalStorage();
+
+    // Attach event handlers
     form.addEventListener('submit', this._newWorkout.bind(this));
     inputType.addEventListener('change', this._toggleElevationField);
     containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
@@ -117,6 +113,11 @@ class App {
 
     // Handling clicks on map
     this.#map.on('click', this._showForm.bind(this));
+
+    // Rendering the marker
+    this.#workouts.forEach(workout => {
+      this._renderWorkoutMarker(workout);
+    });
   }
 
   _showForm(mapE) {
@@ -143,9 +144,11 @@ class App {
   }
 
   _newWorkout(e) {
-    const validInputs = (...inputs) =>
-      inputs.every(input => Number.isFinite(input));
+    // prettier-ignore
+    // validating inputs
+    const validInputs = (...inputs) => inputs.every(input => Number.isFinite(input));
 
+    // validating if inputs are positive
     const allPositive = (...inputs) => inputs.every(input => input > 0);
 
     e.preventDefault();
@@ -189,7 +192,6 @@ class App {
 
     // Adding new workout object to workout array
     this.#workouts.push(workout);
-    // console.log(workout);
 
     // Render workout on map as marker
     this._renderWorkoutMarker(workout);
@@ -199,6 +201,9 @@ class App {
 
     // Hide form and Clear input fields
     this._hideForm();
+
+    // Set local storage to all workouts
+    this._setLocalStorage();
   }
 
   _renderWorkoutMarker(workout) {
@@ -287,10 +292,27 @@ class App {
         duration: 1,
       },
     });
+  }
 
-    // Using the public interface
-    workout.click();
-    console.log(workout);
+  _setLocalStorage() {
+    localStorage.setItem('workouts', JSON.stringify(this.#workouts));
+  }
+
+  _getLocalStorage() {
+    const data = JSON.parse(localStorage.getItem('workouts'));
+
+    if (!data) return;
+
+    this.#workouts = data;
+
+    this.#workouts.forEach(workout => {
+      this._renderWorkout(workout);
+    });
+  }
+
+  reset() {
+    localStorage.removeItem('workouts');
+    location.reload();
   }
 }
 
