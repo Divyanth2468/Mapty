@@ -3,6 +3,7 @@
 class Workout {
   date = new Date();
   id = (Date.now() + '').slice(-10);
+  clicks = 0;
 
   constructor(coords, distance, duration) {
     this.coords = coords; // [lat, lng]
@@ -19,6 +20,10 @@ class Workout {
       months[this.date.getMonth()]
     } ${this.date.getDate()}`;
     return this.description;
+  }
+
+  click() {
+    return this.clicks++;
   }
 }
 
@@ -72,15 +77,15 @@ const inputElevation = document.querySelector('.form__input--elevation');
 
 class App {
   #map;
+  #mapZoomLevel = 13;
   #mapEvent;
   #workouts = [];
 
   constructor() {
     this._getPosition();
-
     form.addEventListener('submit', this._newWorkout.bind(this));
-
     inputType.addEventListener('change', this._toggleElevationField);
+    containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
   }
 
   _getPosition() {
@@ -102,7 +107,7 @@ class App {
     const coords = [latitude, longitude];
 
     // Creating the map and storing it inside a map variable
-    this.#map = L.map('map').setView(coords, 13);
+    this.#map = L.map('map').setView(coords, this.#mapZoomLevel);
 
     // Setting the map style
     L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
@@ -184,7 +189,7 @@ class App {
 
     // Adding new workout object to workout array
     this.#workouts.push(workout);
-    console.log(workout);
+    // console.log(workout);
 
     // Render workout on map as marker
     this._renderWorkoutMarker(workout);
@@ -198,7 +203,6 @@ class App {
 
   _renderWorkoutMarker(workout) {
     // Setting up the marker
-    console.log(workout.coords);
     L.marker(workout.coords)
       .addTo(this.#map)
       .bindPopup(
@@ -238,17 +242,17 @@ class App {
 
     if (workout.type === 'running') {
       html += `
-              <div class="workout__details">
-                <span class="workout__icon">⚡️</span>
-                <span class="workout__value">${workout.pace.toFixed(1)}</span>
-                <span class="workout__unit">min/km</span>
-              </div>
-              <div class="workout__details">
-                <span class="workout__icon">🦶🏼</span>
-                <span class="workout__value">${workout.cadence}</span>
-                <span class="workout__unit">spm</span>
-              </div>
-              </li>`;
+        <div class="workout__details">
+          <span class="workout__icon">⚡️</span>
+          <span class="workout__value">${workout.pace.toFixed(1)}</span>
+          <span class="workout__unit">min/km</span>
+        </div>
+        <div class="workout__details">
+          <span class="workout__icon">🦶🏼</span>
+          <span class="workout__value">${workout.cadence}</span>
+          <span class="workout__unit">spm</span>
+        </div>
+      </li>`;
     }
 
     if (workout.type === 'cycling') {
@@ -266,6 +270,27 @@ class App {
         </li>`;
     }
     form.insertAdjacentHTML('afterend', html);
+  }
+
+  _moveToPopup(e) {
+    const workoutEl = e.target.closest('.workout');
+    if (!workoutEl) return;
+
+    const workout = this.#workouts.find(
+      work => work.id === workoutEl.dataset.id
+    );
+    // console.log(workout);
+
+    this.#map.setView(workout.coords, this.#mapZoomLevel, {
+      animate: true,
+      pan: {
+        duration: 1,
+      },
+    });
+
+    // Using the public interface
+    workout.click();
+    console.log(workout);
   }
 }
 
