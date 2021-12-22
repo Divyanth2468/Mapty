@@ -64,12 +64,14 @@ const inputDistance = document.querySelector('.form__input--distance');
 const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
+const btn = document.querySelector('.btn');
 
 class App {
   #map;
   #mapZoomLevel = 13;
   #mapEvent;
   #workouts = [];
+  #markers = [];
 
   constructor() {
     // Get User's position
@@ -81,7 +83,15 @@ class App {
     // Attach event handlers
     form.addEventListener('submit', this._newWorkout.bind(this));
     inputType.addEventListener('change', this._toggleElevationField);
-    containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
+    containerWorkouts.addEventListener('click', e => {
+      const trashBin = e.target.closest('.workout__trash');
+      if (!trashBin) return this._moveToPopup(e);
+      else {
+        const workoutEl = e.target.closest('.workout');
+        if (!workoutEl) return;
+        this._deleteWorkout(workoutEl.dataset.id);
+      }
+    });
   }
 
   _getPosition() {
@@ -113,11 +123,28 @@ class App {
 
     // Handling clicks on map
     this.#map.on('click', this._showForm.bind(this));
+    this._getCurrentPosition(coords);
 
     // Rendering the marker
     this.#workouts.forEach(workout => {
       this._renderWorkoutMarker(workout);
     });
+  }
+
+  _getCurrentPosition(coords) {
+    const latLng = [coords[0], coords[1]];
+    L.marker(latLng)
+      .addTo(this.#map)
+      .bindPopup(
+        L.popup({
+          maxwidth: 250,
+          minwidth: 100,
+          autoClose: false,
+          closeOnClick: false,
+        })
+      )
+      .setPopupContent(`📍 Current Location`)
+      .openPopup();
   }
 
   _showForm(mapE) {
@@ -208,7 +235,9 @@ class App {
 
   _renderWorkoutMarker(workout) {
     // Setting up the marker
-    L.marker(workout.coords)
+    const marker = L.marker(workout.coords);
+    this.#markers.push(marker);
+    marker
       .addTo(this.#map)
       .bindPopup(
         // Adding custom properties
@@ -230,7 +259,11 @@ class App {
   _renderWorkout(workout) {
     let html = `
           <li class="workout workout--${workout.type}" data-id="${workout.id}">
-          <h2 class="workout__title">${workout.description}</h2>
+          <h2 class="workout__title">
+          <span>${workout.description}</span>
+
+          <span class="workout__trash">🗑</span>
+          </h2>
           <div class="workout__details">
             <span class="workout__icon">${
               workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'
@@ -277,6 +310,23 @@ class App {
     form.insertAdjacentHTML('afterend', html);
   }
 
+  _deleteWorkout(id) {
+    const workout = document.querySelector(`[data-id='${id}']`);
+    this.#workouts.forEach((workout, index) => {
+      if (workout.id === id) {
+        // Removing workout from
+        this.#workouts.splice(index, 1);
+
+        // Removing marker
+        this.#markers[index].remove();
+        this.#markers.splice(index, 1);
+      }
+    });
+
+    this._setLocalStorage();
+    workout.remove();
+  }
+
   _moveToPopup(e) {
     const workoutEl = e.target.closest('.workout');
     if (!workoutEl) return;
@@ -302,12 +352,38 @@ class App {
     const data = JSON.parse(localStorage.getItem('workouts'));
 
     if (!data) return;
+    console.log(data);
 
-    this.#workouts = data;
+    data.forEach(this._objectConversion.bind(this));
 
     this.#workouts.forEach(workout => {
       this._renderWorkout(workout);
     });
+  }
+
+  _objectConversion(obj) {
+    let workout;
+    if (obj.type === 'running') {
+      workout = new Running(
+        obj.coords,
+        obj.distance,
+        obj.duration,
+        obj.cadence
+      );
+    }
+    if (obj.type === 'cycling') {
+      workout = new Cycling(
+        obj.coords,
+        obj.distance,
+        obj.duration,
+        obj.elevationGain
+      );
+    }
+    workout.type = obj.type;
+    workout.id = obj.id;
+    workout.date = obj.date;
+    workout.description = obj.description;
+    this.#workouts.push(workout);
   }
 
   reset() {
@@ -317,3 +393,5 @@ class App {
 }
 
 const app = new App();
+
+btn.addEventListener('click', app.reset);

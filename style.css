@@ -76,7 +76,22 @@ a:visited {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: 0.75rem 1.5rem;
+  position: relative;
+  z-index: 1;
 }
+
+.workout__trash {
+  height: 2.5rem;
+  width: 2.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.workout__trash:hover {
+  background-color: red;
+}
+
 .workout--running {
   border-left: 5px solid var(--color-brand--2);
 }
@@ -88,6 +103,8 @@ a:visited {
   font-size: 1.7rem;
   font-weight: 600;
   grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
 }
 
 .workout__details {
@@ -217,4 +234,19 @@ a:visited {
 }
 .cycling-popup .leaflet-popup-content-wrapper {
   border-left: 5px solid var(--color-brand--1);
+}
+
+.btn {
+  border: none;
+  border-radius: 0;
+  padding: 1rem;
+  width: 100%;
+  background-color: #cc0000;
+  color: #fff;
+}
+
+.btn:hover,
+.btn:active {
+  cursor: pointer;
+  background-color: #e60000;
 }
