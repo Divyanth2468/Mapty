@@ -1,18 +1,10 @@
-
 # Mapty
 
 A small web app where you can log your running and cycling workouts, to check where you workout the most.
 
-
-
-
 ## Demo
 
 You can view the application at this link https://divyanth2468.github.io/Mapty
-
-
-
-
 
 ## Features
 
@@ -23,8 +15,10 @@ You can view the application at this link https://divyanth2468.github.io/Mapty
 - Display all workouts in a list
 - Display all workouts on the map with a marker
 - Stores the input workout data in the local storage, so on page reload the data wont dissapear
+- Displays current location
+- Reset button to erase all workout data
+- Ability to delete individual workouts
 
 ## Screenshots
 
 ![App Screenshot](Demo.png)
-

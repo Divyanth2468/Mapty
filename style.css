@@ -1,6 +1,7 @@
 :root {
   --color-brand--1: #ffb545;
   --color-brand--2: #00c46a;
+  --color-brand--3: #c70501;
 
   --color-dark--1: #2d3439;
   --color-dark--2: #42484d;
@@ -81,15 +82,23 @@ a:visited {
 }
 
 .workout__trash {
-  height: 2.5rem;
-  width: 2.5rem;
+  background: var(--color-dark--1);
+  padding: 0.25rem 1.5rem;
   display: flex;
   justify-content: center;
   align-items: center;
+  border-radius: 5px;
+  transition: all 0.2s;
 }
 
-.workout__trash:hover {
-  background-color: red;
+.workout__trash:hover,
+.workout__trash:active {
+  background: var(--color-brand--3);
+  transform: scale(0.95);
+}
+
+.workout__trash:active {
+  transform: scale(1);
 }
 
 .workout--running {
