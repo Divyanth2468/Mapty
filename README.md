@@ -18,6 +18,7 @@ You can view the application at this link https://divyanth2468.github.io/Mapty
 - Displays current location
 - Reset button to erase all workout data
 - Ability to delete individual workouts
+- Ability to sort workouts based on distance,duration and time.
 
 ## Screenshots
 
