@@ -65,6 +65,7 @@ const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
 const btn = document.querySelector('.btn');
+const sorting = document.querySelector('.sorting');
 
 class App {
   #map;
@@ -92,6 +93,8 @@ class App {
         this._deleteWorkout(workoutEl.dataset.id);
       }
     });
+
+    sorting.addEventListener('click', this._sortWorkouts.bind(this));
   }
 
   _getPosition() {
@@ -384,6 +387,42 @@ class App {
     workout.date = obj.date;
     workout.description = obj.description;
     this.#workouts.push(workout);
+  }
+
+  _sortWorkouts(e) {
+    const type = e.target.closest('.sorting__item');
+    let sortedArray = [];
+    if (!type) return;
+    if (type.classList.contains('distance'))
+      sortedArray = this._sort('distance');
+    if (type.classList.contains('duration'))
+      sortedArray = this._sort('duration');
+    if (type.classList.contains('speed')) sortedArray = this._sort('speed');
+
+    let allList = document.querySelectorAll('.workout');
+    allList.forEach(list => {
+      list.remove();
+    });
+    console.log(sortedArray);
+    sortedArray.forEach(workout => {
+      this._renderWorkout(workout);
+    });
+  }
+
+  _sort(key) {
+    let array = [];
+    let sortedArray = [];
+    this.#workouts.forEach(workout => {
+      array.push(workout[key]);
+    });
+    array = array.slice().sort((a, b) => a - b);
+
+    array.forEach(item => {
+      this.#workouts.forEach(workout => {
+        if (workout[key] == item) sortedArray.push(workout);
+      });
+    });
+    return new Set(sortedArray);
   }
 
   reset() {

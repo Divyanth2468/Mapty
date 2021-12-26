@@ -139,6 +139,36 @@ a:visited {
   font-weight: 800;
 }
 
+.sorting {
+  margin-bottom: 3rem;
+  list-style: none;
+  display: flex;
+  font-size: 1.5rem;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.sorting__item {
+  margin-right: 4rem;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.sorting__item::after {
+  content: '';
+  display: block;
+  border-bottom: 2px solid #f5bd02;
+  width: 25%;
+  transition: all 0.5s;
+}
+
+.sorting__item:hover::after,
+.sorting__item:active::after {
+  width: 100%;
+  border-bottom: 2px solid #f5bd02;
+}
+
 .form {
   background-color: var(--color-dark--2);
   border-radius: 5px;
