@@ -145,17 +145,24 @@ a:visited {
   display: flex;
   font-size: 1.5rem;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
 }
 
 .sorting__item {
   margin-right: 4rem;
   border-bottom: 2px solid transparent;
-  transition: all 0.2s;
   cursor: pointer;
+  transition: all 0.2s;
 }
 
-.sorting__item::after {
+.sorting__link:link,
+.sorting__link:visited,
+.sorting__link:active {
+  text-decoration: none;
+  color: #fff;
+}
+
+.sorting__link::after {
   content: '';
   display: block;
   border-bottom: 2px solid #f5bd02;
@@ -163,8 +170,17 @@ a:visited {
   transition: all 0.5s;
 }
 
-.sorting__item:hover::after,
-.sorting__item:active::after {
+.sorting__link:hover::after {
+  width: 100%;
+  border-bottom: 2px solid #f5bd02;
+}
+
+/* .sorting__link--active {
+  width: 100%;
+  border-bottom: 2px solid #f5bd02;
+} */
+
+.sorting__link--active::after {
   width: 100%;
   border-bottom: 2px solid #f5bd02;
 }

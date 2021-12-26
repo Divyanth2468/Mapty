@@ -33,8 +33,8 @@ class Running extends Workout {
 
   calcPace() {
     // min/km
-    this.pace = this.duration / this.distance;
-    return this.pace;
+    this.speed = this.duration / this.distance;
+    return this.speed;
   }
 }
 
@@ -66,6 +66,7 @@ const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
 const btn = document.querySelector('.btn');
 const sorting = document.querySelector('.sorting');
+const sortingLinks = document.querySelectorAll('.sorting__link');
 
 class App {
   #map;
@@ -285,7 +286,7 @@ class App {
       html += `
         <div class="workout__details">
           <span class="workout__icon">⚡️</span>
-          <span class="workout__value">${workout.pace.toFixed(1)}</span>
+          <span class="workout__value">${workout.speed.toFixed(1)}</span>
           <span class="workout__unit">min/km</span>
         </div>
         <div class="workout__details">
@@ -355,7 +356,7 @@ class App {
     const data = JSON.parse(localStorage.getItem('workouts'));
 
     if (!data) return;
-    console.log(data);
+    // console.log(data);
 
     data.forEach(this._objectConversion.bind(this));
 
@@ -390,38 +391,64 @@ class App {
   }
 
   _sortWorkouts(e) {
-    const type = e.target.closest('.sorting__item');
+    // Selecting the closest link (based on which to sort)
+    const type = e.target.closest('.sorting__link');
+
+    // Creating a new array for sortedItems
     let sortedArray = [];
+
+    // Checking if link exists
     if (!type) return;
+
+    // Toggling active class
+    sortingLinks.forEach(link =>
+      link.classList.remove('sorting__link--active')
+    );
+    type.classList.add('sorting__link--active');
+
+    // Sorting based on category chosen
     if (type.classList.contains('distance'))
       sortedArray = this._sort('distance');
     if (type.classList.contains('duration'))
       sortedArray = this._sort('duration');
     if (type.classList.contains('speed')) sortedArray = this._sort('speed');
+    if (type.classList.contains('type')) sortedArray = this._sort('type');
 
+    // Removing all the activities before rendering sorted ones
     let allList = document.querySelectorAll('.workout');
     allList.forEach(list => {
       list.remove();
     });
-    console.log(sortedArray);
+
+    // Rendering sorted activities
     sortedArray.forEach(workout => {
       this._renderWorkout(workout);
     });
   }
 
   _sort(key) {
+    // creating an empty array to hold the values of the category based on which to sort
     let array = [];
+
+    // creating a new sorted array that will return the sorted workouts in order
     let sortedArray = [];
+
+    // Adding all the values to the array
     this.#workouts.forEach(workout => {
       array.push(workout[key]);
     });
-    array = array.slice().sort((a, b) => a - b);
 
+    // Sorting the array
+    array = array.slice().sort((a, b) => Math.round(a) - Math.round(b));
+
+    // Adding items in sorted order to sortedArray
     array.forEach(item => {
       this.#workouts.forEach(workout => {
         if (workout[key] == item) sortedArray.push(workout);
       });
     });
+
+    // Removing duplicates if any by returning a set
     return new Set(sortedArray);
   }
 
