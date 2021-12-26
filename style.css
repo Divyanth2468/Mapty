@@ -298,6 +298,7 @@ a:visited {
   width: 100%;
   background-color: #cc0000;
   color: #fff;
+  margin-bottom: 2rem;
 }
 
 .btn:hover,
